@@ -1,0 +1,8 @@
+# image-key, image-file, lm-file
+0000045_001,data/casia/data/0000045_001.jpg,data/casia/data/0000045_001_det_0.pts
+0000045_002,data/casia/data/0000045_002.jpg,data/casia/data/0000045_002_det_0.pts
+0000045_003,data/casia/data/0000045_003.jpg,data/casia/data/0000045_003_det_0.pts
+0000045_004,data/casia/data/0000045_004.jpg,data/casia/data/0000045_004_det_0.pts
+0000045_005,data/casia/data/0000045_005.jpg,data/casia/data/0000045_005_det_0.pts
+0000045_006,data/casia/data/0000045_006.jpg,data/casia/data/0000045_006_det_0.pts
+0000045_007,data/casia/data/0000045_007.jpg,data/casia/data/0000045_007_det_0.pts
