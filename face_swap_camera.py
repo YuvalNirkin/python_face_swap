@@ -31,8 +31,8 @@ if __name__ == '__main__':
 
         # Display result
         cv2.imshow('frame', frame)
-        #if rendered_frame is not None:
-        #    cv2.imshow('render', rendered_frame)
+        if rendered_frame is not None:
+            cv2.imshow('render', rendered_frame)
         if cv2.waitKey(1) >= 0: break
 
     

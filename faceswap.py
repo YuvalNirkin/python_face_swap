@@ -29,14 +29,21 @@ class faceswap(object):
             # 3D model parameter optimization
             modelParams = self.projectionModel.getInitialParameters(self.mean3DShape[:, self.idxs3D], landmarks[:, self.idxs2D])
             modelParams = NonLinearLeastSquares.GaussNewton(modelParams, self.projectionModel.residual, self.projectionModel.jacobian, ([self.mean3DShape[:, self.idxs3D], self.blendshapes[:, :, self.idxs3D]], landmarks[:, self.idxs2D]), verbose=0)
-            #modelParams = self.projectionModel.getInitialParameters(mean3DShape[:, idxs3D], shape2D[:, idxs2D])
-            #modelParams = NonLinearLeastSquares.GaussNewton(modelParams, self.projectionModel.residual, self.projectionModel.jacobian, ([mean3DShape[:, idxs3D], blendshapes[:, :, idxs3D]], shape2D[:, idxs2D]), verbose=0)
 
             # Render the model to the target image
             shape3D = utils.getShape3D(self.mean3DShape, self.blendshapes, modelParams)
-            renderedImg = self.renderer.render(shape3D)
+            rendered_img = self.renderer.render(shape3D)
 
-            return renderedImg
+            # Blend images
+            mask = np.zeros(rendered_img.shape, rendered_img.dtype)
+            red, green, blue = rendered_img[:,:,0], rendered_img[:,:,1], rendered_img[:,:,2]
+            binmask = (red != 0) | (green != 0) | (blue != 0)
+            mask[:,:,:3][binmask] = [255, 255, 255]
+
+            cmin, rmin, cmax, rmax = self.calcBBox(binmask)
+            center = ((cmin + cmax)/2, (rmin + rmax)/2)
+            output = cv2.seamlessClone(rendered_img, target_img, mask, center, cv2.NORMAL_CLONE)
+            return output
 
     def calcLandmarks(self, img):
         faces = self.detector(img, 1)
@@ -58,3 +65,10 @@ class faceswap(object):
         modelParams = NonLinearLeastSquares.GaussNewton(modelParams, self.projectionModel.residual, self.projectionModel.jacobian, ([self.mean3DShape[:, self.idxs3D], self.blendshapes[:, :, self.idxs3D]], landmarks[:, self.idxs2D]), verbose=0)
         textureCoords = self.projectionModel.fun([self.mean3DShape, self.blendshapes], modelParams)
         return textureCoords
+    
+    def calcBBox(self, img):
+        rows = np.any(img, axis=1)
+        cols = np.any(img, axis=0)
+        rmin, rmax = np.where(rows)[0][[0, -1]]
+        cmin, cmax = np.where(cols)[0][[0, -1]]
+        return cmin, rmin, cmax, rmax 
