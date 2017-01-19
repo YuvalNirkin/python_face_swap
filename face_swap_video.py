@@ -18,9 +18,9 @@ if __name__ == '__main__':
     # Initialize Video
     cap = cv2.VideoCapture(args.target)
     ret, frame = cap.read()
-    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
     total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     vid_writer = cv2.VideoWriter(args.output, cv2.VideoWriter_fourcc('X', '2', '6', '4'), fps, (width, height))
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     while True:
         # Read video frame
         ret, frame = cap.read()
-        if ret: break
+        if not ret: break
         
         # Do face swap
         rendered_frame = fs.swap(frame)

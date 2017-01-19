@@ -3,6 +3,7 @@
 
 # Windows
 *.sln
+*.suo
 *.pyproj
 
 # Linux
