@@ -9,7 +9,7 @@ import dlib
 class faceswap(object):
     """Swap faces"""
     
-    def __init__(self, width, height, source_img, landmarks_model_path, model3d_path):
+    def __init__(self, width, height, source_img, landmarks_model_path, model3d_path, source_seg = None):
         self.w = width
         self.h = height
         self.detector = dlib.get_frontal_face_detector()
@@ -18,11 +18,14 @@ class faceswap(object):
             utils.load3DFaceModel(model3d_path)
         self.projectionModel = models.OrthographicProjectionBlendshapes(self.blendshapes.shape[0])
 
-        landmarks = self.calcLandmarks(source_img)[0]
+        landmarks_arr = self.calcLandmarks(source_img)
+        if landmarks_arr:
+            landmarks = landmarks_arr[0]
+        else: raise Exception("Couldn't find a face in the source image!") 
         textureCoords = self.calcTextureCoords(landmarks)
-        self.renderer = face_renderer.FaceRenderer(self.w, self.h, source_img, textureCoords, self.mesh)
+        self.renderer = face_renderer.FaceRenderer(self.w, self.h, source_img, textureCoords, self.mesh, source_seg)
 
-    def swap(self, target_img):
+    def swap(self, target_img, target_seg = None):
         landmarks_set = self.calcLandmarks(target_img)
         if landmarks_set is None: return None
         for landmarks in landmarks_set:
@@ -38,6 +41,7 @@ class faceswap(object):
             mask = np.zeros(rendered_img.shape, rendered_img.dtype)
             red, green, blue = rendered_img[:,:,0], rendered_img[:,:,1], rendered_img[:,:,2]
             binmask = (red != 0) | (green != 0) | (blue != 0)
+            if target_seg is not None: binmask = binmask & (target_seg != 0)
             mask[:,:,:3][binmask] = [255, 255, 255]
 
             cmin, rmin, cmax, rmax = self.calcBBox(binmask)

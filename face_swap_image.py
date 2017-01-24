@@ -12,26 +12,30 @@ if __name__ == '__main__':
     parser.add_argument('--landmarks', '-l', default='dlib_models/shape_predictor_68_face_landmarks.dat', help='Face landmarks model')
     parser.add_argument('--model3d', '-m', default='models3d/candide.npz', help='Face 3D model')
     parser.add_argument('--bidirectional', '-b', help='Swap both directions', action="store_true")
+    parser.add_argument('--ss', help='Source segmentation')
+    parser.add_argument('--ts', help='Target segmentation')
     args = parser.parse_args()
     
     # Read source and target images
     source_img = cv2.imread(args.source)    
     target_img = cv2.imread(args.target)
 
+    # Read source and target segmentations
+    source_seg, target_seg = None, None
+    if args.ss is not None:
+        source_seg = cv2.imread(args.ss, cv2.IMREAD_GRAYSCALE)
+    if args.ts is not None:
+        target_seg = cv2.imread(args.ts, cv2.IMREAD_GRAYSCALE)
+
     # Initialize face swap
-    fs = faceswap.faceswap(target_img.shape[1], target_img.shape[0], source_img, args.landmarks, args.model3d)
+    fs = faceswap.faceswap(target_img.shape[1], target_img.shape[0], source_img, args.landmarks, args.model3d, source_seg)
 
     # Do face swap
-    rendered_img = fs.swap(target_img)
+    rendered_img = fs.swap(target_img, target_seg)
 
     if args.bidirectional:
-        fs2 = faceswap.faceswap(source_img.shape[1], source_img.shape[0], target_img, args.landmarks, args.model3d)
-        rendered_img2 = fs2.swap(source_img)
-
-    # Do face swap
-    #rendered_img = fs.swap(target_img)
-    #if args.bidirectional:
-    #    rendered_img2 = fs2.swap(source_img)
+        fs2 = faceswap.faceswap(source_img.shape[1], source_img.shape[0], target_img, args.landmarks, args.model3d, target_seg)
+        rendered_img2 = fs2.swap(source_img, source_seg)
 
     # Display result
     if args.bidirectional:    
