@@ -63,6 +63,8 @@ if __name__ == '__main__':
         plt.pause(0.001)
 
         # Write output image
+        fig = plt.gcf()
+        fig.set_size_inches(18.5, 10.5, forward=True)
         plt.savefig(args.output, bbox_inches='tight')
         
         #enter = raw_input("Press [enter] to continue.")
